@@ -18,8 +18,10 @@ fn main() {
                         .help("Output file")
                         .short("o")
                         .long("output")
-                        .takes_value(true)
-                        );
+                        .takes_value(true))
+                    .subcommand(SubCommand::with_name("wakati")
+                        .about("generate wakati text file")
+                    );
     
     let matches = app.get_matches();
     if let Err(e) = run(matches) {

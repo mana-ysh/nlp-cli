@@ -41,7 +41,27 @@ impl Morphome{
 }
 
 pub fn run(matches: ArgMatches) -> Result<(), Box<Error>> {
+    match matches.subcommand_name() {
+        Some(mode) => {
+            match mode {
+               "wakati" => {
+                    run_wakati(matches.clone());  // FIXME: clone
+                }
+                _ => {
+                    println!("Invalid subcommand");
+                    exit(1);
+                }
+            }
+        },
+        None => {
+            println!("Please input subcommand");
+            exit(1);
+        } 
+    }
+    Ok(())
+}
 
+fn run_wakati(matches: ArgMatches) {
     let sin = stdin();
     let mut sin = sin.lock();
     let in_buf: Box<BufRead> = match matches.value_of("input") {
@@ -69,17 +89,11 @@ pub fn run(matches: ArgMatches) -> Result<(), Box<Error>> {
             },
         }
     }
-    Ok(())
 }
-
-
 
 fn get_bufwriter(filepath: &str) -> BufWriter<File> {
     BufWriter::new(File::create(filepath).unwrap())
 }
-
-
-
 
 fn get_bufreader(filepath: &str) -> BufReader<File> {
     BufReader::new(File::open(filepath).unwrap())
