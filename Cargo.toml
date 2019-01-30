@@ -1,0 +1,8 @@
+[package]
+name = "nlpcli"
+version = "0.1.0"
+authors = ["mana-ysh <manabe.hitoshi.me0@is.naist.jp>"]
+description = "Command line tool for simple manipulation of corpus"
+
+[dependencies]
+clap = "2.32.0"
