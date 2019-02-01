@@ -8,13 +8,14 @@ use std::io::{Write, BufWriter, BufReader, stdin, stdout};
 use std::io::prelude::*;
 use std::process::exit;
 
+use nlpcli::task::ngram;
 use nlpcli::task::wakati;
 
 fn main() {
     let app = App::new("nlp-cli")
                    .version("0.1.0")
                    .arg(Arg::with_name("task")
-                        .help("Task [wakati]")
+                        .help("Task [ngram, wakati]")
                         .short("t")
                         .long("task")
                         .takes_value(true))
@@ -27,8 +28,12 @@ fn main() {
                         .help("Output file")
                         .short("o")
                         .long("output")
-                        .takes_value(true)
-                    );
+                        .takes_value(true))
+                    .arg(Arg::with_name("n")
+                        .help("n-gram's n")
+                        .short("n")
+                        .long("n")
+                        .takes_value(true));
     let matches = app.get_matches();
     if let Err(e) = run(matches) {
         println!("Fail to run: {}", e);
@@ -56,6 +61,11 @@ fn run(matches: ArgMatches) -> Result<(), Box<Error>> {
             match task {
                "wakati" => {
                     wakati::run_wakati(&mut in_buf, &mut out_buf);  // FIXME: clone
+                }
+                "ngram" => {
+                    let n = matches.value_of("n").unwrap().parse().unwrap();
+                    ngram::output_ngram_stats(&mut in_buf, &mut out_buf, n);
+
                 }
                 _ => {
                     println!("Invalid subcommand");
