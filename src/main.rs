@@ -9,6 +9,11 @@ use nlpcli::run;
 fn main() {
     let app = App::new("nlp-cli")
                    .version("0.1.0")
+                   .arg(Arg::with_name("task")
+                        .help("Task [wakati]")
+                        .short("t")
+                        .long("task")
+                        .takes_value(true))
                    .arg(Arg::with_name("input")
                         .help("Input file")
                         .short("i")
@@ -18,9 +23,7 @@ fn main() {
                         .help("Output file")
                         .short("o")
                         .long("output")
-                        .takes_value(true))
-                    .subcommand(SubCommand::with_name("wakati")
-                        .about("generate wakati text file")
+                        .takes_value(true)
                     );
     
     let matches = app.get_matches();

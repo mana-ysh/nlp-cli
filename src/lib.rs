@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use std::borrow::Cow;
 use std::error::Error;
 use std::fs::File;
-use std::io::{Write, Read, BufWriter, BufReader, Lines, copy, stdin, stdout, StdoutLock};
+use std::io::{Write, Read, BufWriter, BufReader, Lines, copy, stdin, stdout, StdoutLock, StdinLock};
 use std::io::prelude::*;
 use std::process::exit;
 
@@ -23,7 +23,6 @@ struct Morphome {
     normform: String
 }
 
-
 impl Morphome{  
     fn new(surface: String, pos1: String, pos: String, normform: String) -> Self {
         Morphome{surface: surface, pos1: pos1, pos: pos, normform: normform}
@@ -41,30 +40,9 @@ impl Morphome{
 }
 
 pub fn run(matches: ArgMatches) -> Result<(), Box<Error>> {
-    match matches.subcommand_name() {
-        Some(mode) => {
-            match mode {
-               "wakati" => {
-                    run_wakati(matches.clone());  // FIXME: clone
-                }
-                _ => {
-                    println!("Invalid subcommand");
-                    exit(1);
-                }
-            }
-        },
-        None => {
-            println!("Please input subcommand");
-            exit(1);
-        } 
-    }
-    Ok(())
-}
-
-fn run_wakati(matches: ArgMatches) {
     let sin = stdin();
     let mut sin = sin.lock();
-    let in_buf: Box<BufRead> = match matches.value_of("input") {
+    let mut in_buf: Box<BufRead> = match matches.value_of("input") {
         Some(filepath) => Box::new(get_bufreader(filepath)),
         None => Box::new(BufReader::new(sin))
     };
@@ -75,6 +53,28 @@ fn run_wakati(matches: ArgMatches) {
         Some(filepath) => Box::new(get_bufwriter(filepath)),
         None => Box::new(BufWriter::new(out))
     }; 
+
+    match matches.value_of("task") {
+        Some(task) => {
+            match task {
+               "wakati" => {
+                    run_wakati(&mut in_buf, &mut out_buf, matches.clone());  // FIXME: clone
+                }
+                _ => {
+                    println!("Invalid subcommand");
+                    exit(1);
+                }
+            }
+        },
+        None => {
+            println!("Please input task argument");
+            exit(1);
+        } 
+    }
+    Ok(())
+}
+
+fn run_wakati<T: BufRead, U: Write>(in_buf: &mut T, out_buf: &mut U, matches: ArgMatches) {
 
     let mut sent: Vec<Morphome> = Vec::new();
     for line in in_buf.lines() {
