@@ -8,6 +8,7 @@ use std::io::{Write, BufWriter, BufReader, stdin, stdout};
 use std::io::prelude::*;
 use std::process::exit;
 
+use nlpcli::task::cooc;
 use nlpcli::task::ngram;
 use nlpcli::task::wakati;
 
@@ -33,6 +34,11 @@ fn main() {
                         .help("n-gram's n")
                         .short("n")
                         .long("n")
+                        .takes_value(true))
+                    .arg(Arg::with_name("window")
+                        .help("Window size for calculating co-occurence")
+                        .long("window")
+                        .short("w")
                         .takes_value(true));
     let matches = app.get_matches();
     if let Err(e) = run(matches) {
@@ -66,6 +72,10 @@ fn run(matches: ArgMatches) -> Result<(), Box<Error>> {
                     let n = matches.value_of("n").unwrap().parse().unwrap();
                     ngram::output_ngram_stats(&mut in_buf, &mut out_buf, n);
 
+                }
+                "cooc" => {
+                    let window = matches.value_of("window").unwrap().parse().unwrap();
+                    cooc::output_cooc_stats(&mut in_buf, &mut out_buf, window);
                 }
                 _ => {
                     println!("Invalid subcommand");
